@@ -1,0 +1,167 @@
+@CHARSET "UTF-8";
+
+.vote
+{
+	font-size:15pt;	
+	color:green;
+}
+
+
+.votes_against
+{
+	color:red;
+}
+.votes_ratio
+{
+	color:black;	
+}
+.vote_val
+{
+	font-size:15pt;
+}
+
+#vote_buttons_table 
+{
+	width:514px;
+}
+
+#vote_buttons_table td 
+{
+	width:40px;
+	height:60px;
+}
+
+#vote_buttons_table td a
+{
+	padding:10px 20px;
+	border: #ccc solid 2px;
+	border-radius:15px;
+	-moz-border-radius:15px; /* Firefox 3.6 and earlier */
+	font-size:15pt;
+}
+
+#vote_buttons_table td a.vote_for
+{
+	color:#004400;
+	background:#55ff55;
+	background-image: linear-gradient(bottom, rgb(5,232,20) 10%, rgb(58,166,71) 55%);
+	background-image: -o-linear-gradient(bottom, rgb(5,232,20) 10%, rgb(58,166,71) 55%);
+	background-image: -moz-linear-gradient(bottom, rgb(5,232,20) 10%, rgb(58,166,71) 55%);
+	background-image: -webkit-linear-gradient(bottom, rgb(5,232,20) 10%, rgb(58,166,71) 55%);
+	background-image: -ms-linear-gradient(bottom, rgb(5,232,20) 10%, rgb(58,166,71) 55%);
+
+	background-image: -webkit-gradient(
+	linear,
+	left bottom,
+	left top,
+	color-stop(0.1, rgb(5,232,20)),
+	color-stop(0.55, rgb(58,166,71)));
+	border: #00ff00 solid 2px;
+	
+}
+
+#vote_buttons_table td a.vote_for:hover
+{
+	background-image: linear-gradient(bottom,  rgb(58,166,71) 10%, rgb(5,232,20) 55%);
+	background-image: -o-linear-gradient(bottom, rgb(58,166,71) 10%, rgb(5,232,20) 55%);
+	background-image: -moz-linear-gradient(bottom, rgb(58,166,71) 10%, rgb(5,232,20) 55%);
+	background-image: -webkit-linear-gradient(bottom, rgb(58,166,71) 10%, rgb(5,232,20) 55%);
+	background-image: -ms-linear-gradient(bottom, rgb(58,166,71) 10%, rgb(5,232,20) 55%);
+
+	background-image: -webkit-gradient(
+	linear,
+	left bottom,
+	left top,
+	color-stop(0.1, rgb(58,166,71)),
+	color-stop(0.55, rgb(5,232,20)));
+}
+
+#vote_buttons_table td a.vote_against
+{
+	color:#440000;
+	background:#ff5555;
+	background-image: linear-gradient(bottom, rgb(230,15,7) 10%, rgb(171,38,21) 55%);
+	background-image: -o-linear-gradient(bottom, rgb(230,15,7) 10%, rgb(171,38,21) 55%);
+	background-image: -moz-linear-gradient(bottom, rgb(230,15,7) 10%, rgb(171,38,21) 55%);
+	background-image: -webkit-linear-gradient(bottom, rgb(230,15,7) 10%, rgb(171,38,21) 55%);
+	background-image: -ms-linear-gradient(bottom, rgb(230,15,7) 10%, rgb(171,38,21) 55%);
+
+	background-image: -webkit-gradient(
+	linear,
+	left bottom,
+	left top,
+	color-stop(0.1, rgb(230,15,7)),
+	color-stop(0.55, rgb(171,38,21)));
+	border: #ff0000 solid 2px;
+}
+
+#vote_buttons_table td a.vote_against:hover{
+	background-image: linear-gradient(bottom,  rgb(171,38,21) 10%, rgb(230,15,7) 55%);
+	background-image: -o-linear-gradient(bottom, rgb(171,38,21) 10%, rgb(230,15,7) 55%);
+	background-image: -moz-linear-gradient(bottom, rgb(171,38,21) 10%, rgb(230,15,7) 55%);
+	background-image: -webkit-linear-gradient(bottom, rgb(171,38,21) 10%, rgb(230,15,7) 55%);
+	background-image: -ms-linear-gradient(bottom, rgb(171,38,21) 10%, rgb(230,15,7) 55%);
+
+	background-image: -webkit-gradient(
+	linear,
+	left bottom,
+	left top,
+	color-stop(0.1, rgb(171,38,21)),
+	color-stop(0.55, rgb(230,15,7)));
+}
+
+div.report-description-text h5.score_login
+{
+	text-align:center;
+	margin-top:10px;
+	text-transform:none;
+}
+
+#vote_buttons_table td#vote_status
+{
+	width: 110px;
+	text-align:center;
+	font-size:15px;	
+}
+
+#myscore_table
+{
+	width: 360px;
+	font-size:14px;
+	margin-left:12px;
+}
+#myscore_table tr td.score_variable{
+	text-align:right;
+	padding-right:20px;
+}
+
+#myscore_table tr td.score_sum{
+	text-align:right;
+	padding-right:20px;
+	border-top: solid 2px #333;
+}
+
+.table th.col-1_score, .table td.col-1_score
+{
+	width:120px;
+}
+
+table.score_table tr td{
+	padding:5px 20px;
+	font-size:12px;
+	text-align:left;
+}
+table.score_table tr th{
+	padding:5px 20px;
+
+	text-align:left;
+}
+
+table.score_table tr td a{
+	text-decoration:underline;
+}
+
+div#score_top_data_tabs ul li{
+	width:80px;
+	height:80px;
+}
