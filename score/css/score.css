@@ -168,6 +168,7 @@ div#score_top_data_tabs ul li{
 }
 div#score_top_data_tabs ul li a{
 	padding: 5px 4px;
+	width:100%;
 	}
 
 table.score_tab_heading{

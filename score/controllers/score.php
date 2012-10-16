@@ -185,7 +185,7 @@ class score_Controller extends Main_Controller {
 				$id_to_score[$id] = ($incident['votes_for'] / ($incident['votes_for'] + $incident['votes_against'])) * 100;				 
 			}
 			
-			$id_to_count[$id] = $incident['votes_for'] + $incident['votes_against'];
+			$id_to_count[$id] = $incident['votes_for'] - $incident['votes_against'];
 		}
 		
 		arsort($id_to_score);
@@ -243,7 +243,7 @@ class score_Controller extends Main_Controller {
 				$id_to_score[$id] = ($incident['votes_for'] / ($incident['votes_for'] + $incident['votes_against'])) * 100;				 
 			}
 			
-			$id_to_count[$id] = $incident['votes_for'] + $incident['votes_against'];
+			$id_to_count[$id] = $incident['votes_for'] - $incident['votes_against'];
 		}
 		
 		arsort($id_to_score);
