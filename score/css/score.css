@@ -162,6 +162,25 @@ table.score_table tr td a{
 }
 
 div#score_top_data_tabs ul li{
-	width:80px;
-	height:80px;
+	width:84px;
+	height:30px;
+	text-algin:center;
+}
+div#score_top_data_tabs ul li a{
+	padding: 5px 4px;
+	}
+
+table.score_tab_heading{
+	width:538px;
+	text-align:center;	
+	border-collapse: collapse;	
+	position:relative;
+	top:6px;
+}
+table.score_tab_heading tr td{
+	border: solid 2px lightGrey;	
+	width: 182px;
+	background: #E6E6E6 url(../img/themeroller/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x;
+	color:#555;
+	padding:4px;
 }

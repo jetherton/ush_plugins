@@ -11,15 +11,18 @@
 <div class="content-block">
 <h5>DemocraScore</h5>
 
-<div id="score_top_data_tabs">
-
+<table class="score_tab_heading">
+	<tr><td rowspan="2">DemocraCitizens</td><td colspan="2">Ideas</td></tr>
+	<tr><td>All Time</td><td>This Month</td></tr>
+</table>
+<div id="score_top_data_tabs">       
     <ul>
-        <li><a href="#tabs-1">All time Citizens</a></li>
-        <li><a href="#tabs-2">Citizens This Month</a></li>
-        <li><a href="#tabs-3">All time Ideas - Percent</a></li>
-        <li><a href="#tabs-4">Ideas this Month - Percent</a></li>
-        <li><a href="#tabs-5">All time Ideas - Count</a></li>
-        <li><a href="#tabs-6">Ideas this Month - Count</a></li>
+        <li><a href="#tabs-1">All Time</a></li>
+        <li><a href="#tabs-2">This Month</a></li>
+        <li><a href="#tabs-3">%</a></li>
+        <li><a href="#tabs-5">Count</a></li>
+        <li><a href="#tabs-4">%</a></li>        
+        <li><a href="#tabs-6">Count</a></li>
     </ul>
 
     <div id="tabs-1">
