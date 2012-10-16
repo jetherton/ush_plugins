@@ -150,7 +150,7 @@ class score_Controller extends Main_Controller {
 		$sql = 'SELECT incident.id as id, incident.incident_title as title, COUNT(incident.id) as score FROM `'.$table_prefix.'incident` as incident
 		join '.$table_prefix.'score as score ON incident.id = score.incident_id
 		WHERE score.vote = 1
-		group by incident.id';
+		group by incident.id order by score ASC';
 		$db = new Database();
 		$query = $db->query($sql);
 		//loop over the data and add it to the $incidents array
@@ -182,18 +182,17 @@ class score_Controller extends Main_Controller {
 		{
 			if($incident['votes_for'] + $incident['votes_against'] > 0)
 			{
-				$id_to_score[$id] = ($incident['votes_for'] / ($incident['votes_for'] + $incident['votes_against'])) * 100;				 
+				$id_to_score[$id] = array('score'=>($incident['votes_for'] / ($incident['votes_for'] + $incident['votes_against'])) * 100, 'votes_for'=>$incident['votes_for']);				 
 			}
 			
 			$id_to_count[$id] = $incident['votes_for'] - $incident['votes_against'];
 		}
 		
-		arsort($id_to_score);
+		uasort($id_to_score, "comp");
 		arsort($id_to_count);
 		return array('id_to_count'=>$id_to_count,'id_to_score'=>$id_to_score, 'incidents'=>$incidents);
 	}
-	
-	
+
 	
 	private function month_incidents()
 	{
@@ -207,7 +206,7 @@ class score_Controller extends Main_Controller {
 		join '.$table_prefix.'score as score ON incident.id = score.incident_id
 		WHERE score.vote = 1
 		AND score.date >= \''.date("Y-m-01 00:00:00").'\'
-		group by incident.id';
+		group by incident.id order by score ASC';
 		$db = new Database();
 		$query = $db->query($sql);
 		//loop over the data and add it to the $incidents array
@@ -240,13 +239,13 @@ class score_Controller extends Main_Controller {
 		{
 			if($incident['votes_for'] + $incident['votes_against'] > 0)
 			{
-				$id_to_score[$id] = ($incident['votes_for'] / ($incident['votes_for'] + $incident['votes_against'])) * 100;				 
+				$id_to_score[$id] = array('score'=>($incident['votes_for'] / ($incident['votes_for'] + $incident['votes_against'])) * 100, 'votes_for'=>$incident['votes_for']);				 
 			}
 			
 			$id_to_count[$id] = $incident['votes_for'] - $incident['votes_against'];
 		}
 		
-		arsort($id_to_score);
+		uasort($id_to_score, "comp");
 		arsort($id_to_count);
 		return array('id_to_count'=>$id_to_count,'id_to_score'=>$id_to_score, 'incidents'=>$incidents);
 	}
@@ -429,3 +428,19 @@ class score_Controller extends Main_Controller {
 	}
 	
 }
+
+
+
+function comp($a, $b)
+{
+	if($a['score'] == $b['score'])
+	{
+		if($a['votes_for'] == $b['votes_for'])
+		{
+			return 0;
+		}
+		return ($a['votes_for'] < $b['votes_for']) ? 1 : -1;
+	}
+	return ($a['score'] < $b['score']) ? 1 : -1;
+}
+

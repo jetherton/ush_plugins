@@ -63,7 +63,7 @@
         			<td><a href="<?php echo url::base().'reports/view/'.$id;?>"><?php echo $all_time_incidents[$id]['title'];?></a></td>
         			<td><?php echo $all_time_incidents[$id]['votes_for']?></td>
         			<td><?php echo $all_time_incidents[$id]['votes_against']?></td>
-        			<td><?php echo number_format($score, 2, '.','');?>%</td></tr>
+        			<td><?php echo number_format($score['score'], 2, '.','');?>%</td></tr>
         			<?php if($i == 10){break;}?>
 				<?php $i++;}?>
         	</table>   
@@ -79,7 +79,7 @@
         			<td><a href="<?php echo url::base().'reports/view/'.$id;?>"><?php echo $month_incidents[$id]['title'];?></a></td>
         			<td><?php echo $month_incidents[$id]['votes_for']?></td>
         			<td><?php echo $month_incidents[$id]['votes_against']?></td>
-        			<td><?php echo number_format($score, 2, '.','');?>%</td></tr>
+        			<td><?php echo number_format($score['score'], 2, '.','');?>%</td></tr>
         			<?php if($i == 10){break;}?>
 				<?php $i++;}?>
         	</table>       	 
