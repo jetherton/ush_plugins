@@ -1,0 +1,62 @@
+@CHARSET "UTF-8";
+
+#incidentdeltanotify_follow, #incidentdeltanotify_unfollow, #incidentdeltanotify_notlogged 
+{
+	background: #666;
+	border: solid #333 2px;
+	margin-top:20px;
+	margin-bottom:20px;
+	padding:5px;
+	color:#fff;
+	border-radius:5px;
+	-moz-border-radius:5px; /* Firefox 3.6 and earlier */
+	line-height: 25px;
+}
+
+#incidentdeltanotify_follow:hover, #incidentdeltanotify_unfollow:hover, #incidentdeltanotify_notlogged:hover
+{
+	background: #777;
+	border: solid #444 2px;
+	margin-top:10px;
+	margin-bottom:10px;
+	padding:5px;
+	color:#fff;
+	text-decoration:none;
+	cursor:pointer;	
+}
+
+#incidentdeltanotify_wait{
+	margin-left:10px;
+}
+
+#incidentdeltanotify_error{
+	margin-left:30px;
+	background: #ff6666;
+	border: solid #990000 2px;
+	margin-top:20px;
+	margin-bottom:20px;
+	padding:5px;
+	color:#fff;
+	border-radius:5px;
+	-moz-border-radius:5px; /* Firefox 3.6 and earlier */
+	line-height: 25px;
+}
+
+#incidentdeltanotify_success_sub, #incidentdeltanotify_success_unsub
+{
+	margin-left:30px;
+	background: #4DB870;
+	border: solid #1F4A2D 2px;
+	margin-top:20px;
+	margin-bottom:20px;
+	padding:5px;
+	color:#fff;
+	border-radius:5px;
+	-moz-border-radius:5px; /* Firefox 3.6 and earlier */
+	line-height: 25px;
+}
+
+#incidentdeltanotify_div
+{
+	height:50px;
+}
