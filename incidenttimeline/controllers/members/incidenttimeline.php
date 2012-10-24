@@ -106,7 +106,7 @@ class Incidenttimeline_Controller extends Members_Controller {
 			
 			// Instantiate Validation, use $post, so we don't overwrite $_POST fields with our own things
 			$post = array_merge($_POST,$_FILES);
-			
+			Event::run('incidenttimeline_action.timeline_edit_post',$post);
 			
 			
 			//create the validation object
@@ -242,6 +242,7 @@ class Incidenttimeline_Controller extends Members_Controller {
 		$this->template->content->errors = $errors;
 		$this->template->content->form_error = $form_error;
 		$this->template->content->form_saved = $form_saved;
+		$this->template->content->url = 'members';
 		
 		$this->template->content->date_picker_js = $this->_date_picker_js();
 		

@@ -178,6 +178,10 @@ class incidenttimeline {
 			
 			}
 			
+			
+			Event::run('incidenttimeline_action.display_timeline_object', $timeline);
+			Event::run('incidenttimeline_action.display_timeline_event', $event);
+			
 			if($can_edit)
 			{
 				$event['description'] .= '<br/><a href="'.$edit_url.$timeline->id.'">'.Kohana::lang('incidenttimeline.edit').'</a>';

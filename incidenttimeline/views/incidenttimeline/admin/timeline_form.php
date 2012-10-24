@@ -49,7 +49,7 @@
 								<ul>
 									<li><a href="#" class="btn_save"><?php echo strtoupper(Kohana::lang('incidenttimeline.save_timeline'));?></a></li>
 									<li><a href="#" class="btn_save_close"><?php echo strtoupper(Kohana::lang('ui_main.save_close'));?></a></li>
-									<li><a href="<?php echo url::base().'admin/reports/edit/'.$incident_id;?>" ><?php echo strtoupper(Kohana::lang('incidenttimeline.return_to_incident'));?></a>&nbsp;&nbsp;&nbsp;</li>
+									<li><a href="<?php echo url::base().$url.'/reports/edit/'.$incident_id;?>" ><?php echo strtoupper(Kohana::lang('incidenttimeline.return_to_incident'));?></a>&nbsp;&nbsp;&nbsp;</li>
 									<li><a href="#" class="btn_delete btns_red"><?php echo strtoupper(Kohana::lang('ui_main.delete'));?></a></li>
 								</ul>
 							</div>
@@ -163,6 +163,11 @@
 								
 								?>
 							</div>
+							
+							<?php
+								Event::run('incidenttimeline_action.edit_milestone_form', $id);
+							?>
+							
 						</div>
 						<!-- f-col-bottom -->
 						<div class="f-col-bottom-container">

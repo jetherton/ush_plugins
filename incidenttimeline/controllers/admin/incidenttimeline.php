@@ -102,11 +102,11 @@ class Incidenttimeline_Controller extends Admin_Controller {
 		// Check, has the form been submitted, if so, setup validation
 		if ($_POST)
 		{
-
+			
 			// Instantiate Validation, use $post, so we don't overwrite $_POST fields with our own things
 			$post = array_merge($_POST,$_FILES);
 			
-			
+			Event::run('incidenttimeline_action.timeline_edit_post',$post);
 			
 			//create the validation object
 			$post = Validation::factory($post);
@@ -239,6 +239,7 @@ class Incidenttimeline_Controller extends Admin_Controller {
 		$this->template->content->errors = $errors;
 		$this->template->content->form_error = $form_error;
 		$this->template->content->form_saved = $form_saved;
+		$this->template->content->url = 'admin';
 		
 		$this->template->content->date_picker_js = $this->_date_picker_js();
 		
