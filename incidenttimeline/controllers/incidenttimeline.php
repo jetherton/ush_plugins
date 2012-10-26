@@ -126,4 +126,32 @@ class incidenttimeline_Controller extends Main_Controller {
 		echo '</data>';
 	}
 	
+	
+	/**
+	 * Used to render the publicly viewable mile stone details
+	 */
+	public function view()
+	{		
+		$id = 0;
+		if(isset($_GET['id']) AND intval($_GET['id'])!= 0)
+		{
+			$id = intval($_GET['id']);
+		}
+		if($id == 0)
+		{
+			url::redirect('main');
+		}
+		
+		$this->template->header->this_page = 'reports';
+		$this->template->content = new View('incidenttimeline/milestone_view');
+		
+		//get the milestone in question
+		$milestone = ORM::factory('incidenttimeline', $id);
+		$this->template->content->milestone = $milestone;
+		
+		//get the incident this milestone belongs to:
+		$incident = ORM::factory('incident', $milestone->incident_id);
+		$this->template->content->incident = $incident;
+	}
+		
 }

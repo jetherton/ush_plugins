@@ -34,6 +34,10 @@
 		'milestone'=>'Milestone',
 		'incident'=>'Idea',
 		'upcoming'=>'Upcoming Events',
+		'is_completed'=>'This has been completed',
+		'is_not_completed'=>'This has not been completed',
+		'from_incident'=>'From Incident',
+		'picture'=>'Picture',
 	);
 	
 	
