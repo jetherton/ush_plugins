@@ -80,6 +80,7 @@
 				
 					<br/>
 					<?php
+						$id = $milestone->id;
 						Event::run('incidenttimeline_action.view_milestone_form', $id);
 					?>
 		
