@@ -57,7 +57,7 @@ class score {
 		$(document).ready(function() {
 			//grab the data from the server via a HTTP GET
 			$.get("'.url::base().'score/gettop", function(data) {
-				$("div.content-blocks ul.content-column").append(data);
+				$("#block-reports").after(data);
 			});
 		});
 		

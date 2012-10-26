@@ -1,0 +1,12 @@
+@CHARSET "UTF-8";
+.incidenttimeline_home_view table tr td{
+	padding: 5px;
+}
+.incidenttimeline_home_view table tr th{
+	border-bottom: 2px black solid;	
+}
+
+.incidenttimeline_home_view table tr.odd td
+{
+	background: #ccc;
+}

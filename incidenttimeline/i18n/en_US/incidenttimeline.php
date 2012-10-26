@@ -30,6 +30,10 @@
 		'milestonetitle'=>'Milestone Title',
 		'milestonedescription'=>'Milestone Description',
 		'description'=>'Description',
+		'date'=>'Date',
+		'milestone'=>'Milestone',
+		'incident'=>'Idea',
+		'upcoming'=>'Upcoming Events',
 	);
 	
 	

@@ -22,6 +22,36 @@ class incidenttimeline_Controller extends Main_Controller {
 		// Is the user Logged In?
 		$this->logged_in = Auth::instance()->logged_in();
 	}
+	
+	/**
+	 * first get a list of events that are going to happen in the next 30 days.
+	 */
+	public function homewidget()
+	{
+		
+		
+		//turn off the automatic themeing stuff. Where we're going we don't need themes.
+		$this->template = '';
+		$this->auto_render = FALSE;
+		
+		//grab all the timeline events in the next 30 days.
+		$time_now = date( "Y-m-d H:i:s", strtotime('-30 minute'));
+		//$time_30days = date( "Y-m-d H:i:s", strtotime('+30 day'));
+		
+		$milestones = ORM::factory('incidenttimeline')
+			->select('*, incidenttimeline.id as milestone_id, incident.incident_title as incident_title')
+			->join('incident', 'incidenttimeline.incident_id', 'incident.id')
+			//->where(array('date >='=>$time_now, 'date <= '=>$time_30days))
+			->where(array('date >='=>$time_now))
+			->orderby('date', 'ASC')
+			->find_all(30);
+		
+		
+		$view = new View('incidenttimeline/homepage_widget');
+		$view->milestones = $milestones;
+		echo $view;
+		
+	}
 
 	
 	/**

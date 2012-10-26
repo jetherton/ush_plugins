@@ -44,10 +44,36 @@ class incidenttimeline {
 			//Event::add('ushahidi_action.report_edit', array($this, '_save_data'));
 		}
 		
+		if(Router::$controller == "main")
+		{
+			plugin::add_stylesheet("incidenttimeline/css/incidenttimeline");
+			//hook into the UI for the front page
+			Event::add('ushahidi_action.header_scripts', array($this, '_add_js_front_view'));	 //add the UI for setting up alerts
+		}
+		
 		
 
 	}
 	
+	
+	
+	/**
+	 * Insert some Javascript that loads top scorers.
+	 */
+	public function _add_js_front_view()
+	{
+		echo '<script type="text/javascript">';
+		echo'
+		$(document).ready(function() {
+		//grab the data from the server via a HTTP GET
+		$.get("'.url::base().'incidenttimeline/homewidget", function(data) {
+		$("div.content-blocks ul.content-column").append(data);
+	});
+	});
+	
+	';
+		echo '</script>';
+	}
 	
 	
 	
