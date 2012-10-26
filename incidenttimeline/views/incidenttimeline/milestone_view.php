@@ -78,7 +78,7 @@
 							</div>
 		<?php }?>
 				
-					
+					<br/>
 					<?php
 						Event::run('incidenttimeline_action.view_milestone_form', $id);
 					?>
