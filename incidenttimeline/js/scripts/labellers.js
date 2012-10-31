@@ -25,10 +25,14 @@ Timeline.GregorianDateLabeller.prototype.labelInterval = function(date, interval
 };
 
 Timeline.GregorianDateLabeller.prototype.labelPrecise = function(date) {
-    return SimileAjax.DateTime.removeTimeZoneOffset(
-        date, 
-        this._timeZone //+ (new Date().getTimezoneOffset() / 60)
-    ).toUTCString().replace("GMT","");
+	var dateObject = SimileAjax.DateTime.removeTimeZoneOffset(
+		date, 
+		this._timeZone //+ (new Date().getTimezoneOffset() / 60)
+	);
+	var hours = dateObject.getUTCHours();
+	var minutes = dateObject.getMinutes().toString();
+	minutes = minutes.length > 1 ? minutes : "0"+minutes;
+	return dateObject.toDateString() + " at " + hours+":"+minutes;
 };
 
 Timeline.GregorianDateLabeller.prototype.defaultLabelInterval = function(date, intervalUnit) {

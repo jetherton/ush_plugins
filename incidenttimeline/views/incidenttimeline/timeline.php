@@ -21,6 +21,7 @@
 <script type="text/javascript">
 
 
+
 var timeline_data = <?php echo $data; ?>;
 
 var tl;

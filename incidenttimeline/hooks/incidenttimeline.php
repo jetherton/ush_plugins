@@ -28,7 +28,7 @@ class incidenttimeline {
 		if(Router::$controller == "reports" AND Router::$method == "view")
 		{	
 			//add the needed js
-			plugin::add_javascript('incidenttimeline/js/timeline-api');		
+			plugin::add_javascript('incidenttimeline/js/timeline-api.js?timeline-use-local-resources=true');		
 			//hook into the UI for user admin/edit
 			Event::add('ushahidi_action.report_extra', array($this, '_add_user_view'));	 //add the UI for setting up alerts
 		}
@@ -37,7 +37,7 @@ class incidenttimeline {
 		if(Router::$controller == "reports" AND Router::$method == "edit")
 		{
 			//add the needed js
-			plugin::add_javascript('incidenttimeline/js/timeline-api');
+			plugin::add_javascript('incidenttimeline/js/timeline-api.js?timeline-use-local-resources=true');		
 			//hook into the changes to incidents
 			Event::add('ushahidi_action.report_form_admin', array($this, '_render_form'));	 //add the UI for setting up alerts
 			//Event::add('ushahidi_action.report_submit_admin', array($this, '_grab_post'));
@@ -54,8 +54,7 @@ class incidenttimeline {
 		
 
 	}
-	
-	
+
 	
 	/**
 	 * Insert some Javascript that loads top scorers.
