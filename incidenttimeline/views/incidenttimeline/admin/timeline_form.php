@@ -174,13 +174,13 @@
 						</div>
 						<div class="btns">
 							<ul>
-								<li><a href="#" class="btn_save"><?php echo strtoupper(Kohana::lang('ui_main.save_report'));?></a></li>
+								<li><a href="#" class="btn_save"><?php echo strtoupper(Kohana::lang('incidenttimeline.save_timeline'));?></a></li>
 								<li><a href="#" class="btn_save_close"><?php echo strtoupper(Kohana::lang('ui_main.save_close'));?></a></li>
 									<li><a href="#" class="btn_save_add_new"><?php echo strtoupper(Kohana::lang('ui_main.save_add_new'));?></a></li>
 								<?php 
 								if($id)
 								{
-									echo "<li><a href=\"#\" class=\"btn_delete btns_red\">".strtoupper(Kohana::lang('ui_main.delete_report'))."</a></li>";
+									echo "<li><a href=\"#\" class=\"btn_delete btns_red\">".strtoupper(Kohana::lang('ui_main.delete'))."</a></li>";
 								}
 								?>
 								<li><a href="<?php echo url::site().'admin/reports/';?>" class="btns_red"><?php echo strtoupper(Kohana::lang('ui_main.cancel'));?></a></li>
