@@ -14,6 +14,8 @@ Lets users vote up and down and idea, plus keeps tabs on users and how active th
 == Installation ==
 1. Copy the entire /score/ directory into your /plugins/ directory.
 2. Activate the plugin.
+3. On line 73 of /hooks/score.php, set the jquery selector of the DOM element that you want to replace with the Score UI on reports/view/N pages
 		
 
 == Changelog ==
+2012-11-19 - Etherton - Made it so you have to set the selector of the DOM element you want to replace with the Score UI when viewing reports

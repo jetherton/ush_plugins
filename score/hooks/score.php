@@ -70,14 +70,16 @@ class score {
 	 */
 	public function _add_js_report_view()
 	{
+		$dom_element = 'div#scorehere';
+		 
 		echo '<script type="text/javascript">';
 		echo'
 		
 		$(document).ready(function() {
 			//drop everything in the current creditibility section
-			$("div.credibility").empty();
+			$("'.$dom_element.'").empty();
 			//now throw some place holder stuff there
-			$("div.credibility").html("<h5>'.Kohana::lang('score.score_title').'</h5><div id=\"score_data\"><img src=\"'.url::base().'media/img/loading_g2.gif\"/></div>");
+			$("'.$dom_element.'").html("<h5>'.Kohana::lang('score.score_title').'</h5><div id=\"score_data\"><img src=\"'.url::base().'media/img/loading_g2.gif\"/></div>");
 			//grab the data from the server via a HTTP GET
 			$.get("'.url::base().'score/getdata?id='.Event::$data.'", function(data) {
   				$("#score_data").html(data);
