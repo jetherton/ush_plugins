@@ -23,6 +23,12 @@ class excelexport_Controller extends Controller
 	{
 		parent::__construct();
 		
+		ob_implicit_flush();
+		@ini_set('zlib.output_compression', 0);
+		@ini_set('implicit_flush', 1);
+		@ini_set('SecResponseBodyAccess', 0);
+		if (ob_get_level() == 0) ob_start();
+		
 	}
 	
 	public function index()
@@ -93,6 +99,7 @@ class excelexport_Controller extends Controller
 			header('Content-Disposition: attachment; filename="watertracker.csv"');
 		}
 		
+		ob_flush();
 		flush();
 		
 		//start working on the header
@@ -329,6 +336,7 @@ class excelexport_Controller extends Controller
 		 		
 		 		
 		 	}
+		 	ob_flush();
 		 	flush();
 		}
 	 	
@@ -343,6 +351,7 @@ class excelexport_Controller extends Controller
 	 	}
 
 
+	 	ob_end_flush();
 	 	exit;
 	 			
 	}//end index method
