@@ -6,6 +6,7 @@
  * @package	   Excel Export
  */
 
+
 class excelexport_Controller extends Controller
 {
 	
@@ -15,7 +16,8 @@ class excelexport_Controller extends Controller
 	 * @var array
 	 */
 	public static $params = array();
-	
+
+	public static $offset = 100;
 	
 	function __construct()
 	{
@@ -142,7 +144,7 @@ class excelexport_Controller extends Controller
 			{
 				continue;
 			}
-			$cff_values[str_replace(' ', '_', $c->field_name)] = $column;
+			$cff_values[$c->id] = $c->id;
 			if(isset($_GET['html']))
 			{
 				echo '<th class="header">'.$c->field_name.'</th>';
@@ -153,13 +155,14 @@ class excelexport_Controller extends Controller
 			}
 		}
 		
+
 		//get the categories
 		$cats = ORM::factory('category')->orderby('category_position', 'ASC')->find_all();
 		$cat_values = array();
 		//loop over the custom form fields
 		foreach($cats as $c)
 		{
-			$cat_values[str_replace(' ', '_', $c->category_title)] = $column;
+			$cat_values[$c->id] = $c->id;
 			if(isset($_GET['html']))
 			{
 				echo '<th class="header">'.$c->category_title.'</th>';
@@ -169,6 +172,8 @@ class excelexport_Controller extends Controller
 				echo ',"'.str_replace('"', '"""', $c->category_title).'"';
 			}
 		}
+		
+		
 		if(isset($_GET['html']))
 		{
 			echo '</tr>';
@@ -181,15 +186,20 @@ class excelexport_Controller extends Controller
 		{
 			//get the incidents
 			if(isset($_GET['debug'])){$total__dbtime = microtime(true);}
-		 	$cff_incidents = self::fetch_incidents(false, $offset);
+		 	//grab the incidents that we're working on this go around
+			$incidents = self::fetch_incidents(false, $offset);
+			//make the in_str
+		 	$in_str = implode(',',array_keys($incidents));
+		 	//grab the custom form field and category data
+		 	$cff_data = self::get_custom_form_field_values($in_str);
+		 	$cat_data = self::get_category_values($in_str);
 		 	
-		 	if(isset($_GET['debug'])){$temp = microtime(true) - $total__dbtime; echo "\r\n<br/><br/><br/><br/> time to fetch CFF incidents: " . $temp; $total__cattime = microtime(true);}
-		 	$cat_incidents = self::fetch_incidents(true, $offset);
+		 	
 		 	
 		 	if(isset($_GET['debug'])){$temp = microtime(true) - $total__cattime;echo "\r\n<br/><br/><br/><br/> time to fetch Cat incidents: " . $temp;$temp = microtime(true) - $total__dbtime;echo "\r\n<br/><br/><br/><br/> time to fetch all incidents: " . $temp;}
 		 	
 		 	//keep repeating if we maxed out the number of reports returned
-			if(count($cff_incidents) == 1000)
+			if(count($incidents) == self::$offset)
 			{
 				$repeat = true;
 			}
@@ -197,13 +207,15 @@ class excelexport_Controller extends Controller
 			{
 				$repeat = false;
 			}
-			$offset += 1000;
+			$offset += self::$offset;
+			
+			
 	
 		 	if(isset($_GET['debug'])){$total__sheettime = microtime(true);}
 	
 		 	//loop over incidents and build the spread sheet	
 		 	$i = 0; 	
-		 	foreach($cff_incidents as $incident_id=>$incident)
+		 	foreach($incidents as $incident_id=>$incident)
 		 	{	
 				$i++;
 				$class = '';
@@ -238,9 +250,14 @@ class excelexport_Controller extends Controller
 		 				echo ',"'.str_replace('"', '"""', $incident[$key]).'"';
 		 			}
 		 		}
+		 		
+		 		
 		 		//do the CFF values
 		 		foreach($cff_values as $key=>$column)
 		 		{
+		 			
+		 			
+		 			
 		 			//change up the odd even stuff when we're doing cff
 			 		if($i % 2)
 					{
@@ -251,16 +268,27 @@ class excelexport_Controller extends Controller
 						$class = 'class="cff"';
 					}
 					
+					//check to make sure the value is set
+					$value = "";
+					if(isset($cff_data[$incident_id]) AND isset($cff_data[$incident_id][$key]))
+					{
+						
+						$value = $cff_data[$incident_id][$key];
+					}
+					
+					
 					//write out to the file
 		 			if(isset($_GET['html']))
 		 			{
-		 				echo '<td '.$class.'>'.$incident[$key].'</td>';
+		 				echo '<td '.$class.'>'.$value.'</td>';
 		 			}
 		 			else
 		 			{
-		 				echo ',"'.str_replace('"', '"""', $incident[$key]).'"';
+		 				echo ',"'.str_replace('"', '"""', $value).'"';
 		 			}
 		 		}
+		 		
+		 		
 		 		//do the category values
 		 		foreach($cat_values as $key=>$column)
 		 		{
@@ -273,26 +301,35 @@ class excelexport_Controller extends Controller
 		 				$class = 'class="cat"';
 		 			}
 		 			
+		 			//check to make sure the value is set
+		 			$value = "";
+		 			if(isset($cat_data[$incident_id]) AND isset($cat_data[$incident_id][$key]))
+		 			{
+		 			
+		 				$value = $cat_data[$incident_id][$key];
+		 			}
+		 			
 		 			if(isset($_GET['html']))
 		 			{
-		 				echo '<td '.$class.'>'.$cat_incidents[$incident_id][$key].'</td>';
+		 				echo '<td '.$class.'>'.$value.'</td>';
 		 			}
 		 			else
 		 			{
-		 				echo ',"'.str_replace('"', '"""', $cat_incidents[$incident_id][$key]).'"';
+		 				echo ',"'.str_replace('"', '"""', $value).'"';
 		 			}
 		 		}
+		 		
 		 		
 		 		if(isset($_GET['html']))
 		 		{
 		 			echo "</tr>";
 		 		}
+		 				 		
+		 		unset($incidents[$incident_id]);
 		 		
-		 		flush();
-		 		unset($cff_incidents[$incident_id]);
-		 		unset($cat_incidents[$incident_id]);
 		 		
 		 	}
+		 	flush();
 		}
 	 	
 	 	
@@ -686,55 +723,6 @@ class excelexport_Controller extends Controller
 		$sql .= ' i.incident_dateadd AS incident_date_added,';
 		$sql .= ' i.incident_datemodify AS incident_date_last_modified ';
 		
-		//the join statements
-		$join = ' ';
-
-
-		if($show_categories)
-		{
-			//now let's do the categories
-			$categories = ORM::factory('category')->orderby('category_position', 'ASC')->find_all();
-			$names = array();
-			foreach($categories as $c)
-			{
-				$name = $c->category_title;
-				//make sure that name is unique
-				while(isset($names[$name]))
-				{
-					$name .= ".";
-				}
-				$names[$name] = 1;
-				
-				$sql .= ', cat'.$c->id.'.incident_id IS NOT NULL AS `'.str_replace('`', '', str_replace(' ', '_', $name)).'`'."\r\n";
-				$join .=' LEFT JOIN '.$table_prefix.'incident_category AS cat'.$c->id. ' ON (i.id = cat'.$c->id.'.incident_id AND cat'.$c->id.'.category_id = '.$c->id.' )'."\r\n";
-			}
-		}
-		else
-		{		
-			//custom form fields
-			//now we're going to grab all the custom form fields
-			$cffs = ORM::factory('form_field')->orderby('field_position', 'ASC')->find_all();
-			$names = array();
-			foreach($cffs as $cff)
-			{
-				//dont use the DIV fields
-				if($cff->field_type == '9')
-				{
-					continue;
-				}
-				$name = $cff->field_name;
-				//make sure that name is unique
-				while(isset($names[$name]))
-				{
-					$name .= ".";
-				}
-				$names[$name] = 1;
-				
-				$sql .= ', ccf'.$cff->id.'.form_response AS `'.str_replace('`', '', str_replace(' ', '_', $name)).'`'."\r\n";
-				$join .=' LEFT JOIN '.$table_prefix.'form_response AS ccf'.$cff->id. ' ON (i.id = ccf'.$cff->id.'.incident_id AND ccf'.$cff->id.'.form_field_id = '.$cff->id.' )'."\r\n";
-			}
-		}
-		
 
 	
 		// Check if all the parameters exist
@@ -755,7 +743,6 @@ class excelexport_Controller extends Controller
 		. 'LEFT JOIN '.$table_prefix.'location l ON (i.location_id = l.id) '
 		. 'INNER JOIN '.$table_prefix.'incident_category ic ON (ic.incident_id = i.id) '
 		. 'INNER JOIN '.$table_prefix.'category c ON (ic.category_id = c.id) '
-		. $join
 		. 'WHERE i.incident_active = 1 ';
 		// . 'AND c.category_visible = 1 ';
 	
@@ -783,9 +770,7 @@ class excelexport_Controller extends Controller
 	
 		
 		//make sure we grab things incrementally
-		$sql .= 'LIMIT '.$offset.', 1000';
-		
-		
+		$sql .= 'LIMIT '.$offset.', '.self::$offset;
 		
 		
 		$user_name = Kohana::config('database.default.connection.user');
@@ -807,6 +792,87 @@ class excelexport_Controller extends Controller
 	
 		return $incidents;
 	}
+	
+	
+	
+	/**
+	 * This function grabs all the custom form field data for a given in string
+	 * @param unknown_type $in_str The string for a MySQL IN statement
+	 */
+	private static function get_custom_form_field_values($in_str)
+	{
+		$user_name = Kohana::config('database.default.connection.user');
+		$password = Kohana::config('database.default.connection.pass');
+		$database = Kohana::config('database.default.connection.database');
+		$server = Kohana::config('database.default.connection.host');
+		$db_handle = mysql_connect($server, $user_name, $password);
+		$db_found = mysql_select_db($database, $db_handle);
+		
+		// Get the table prefix
+		$table_prefix = Kohana::config('database.default.table_prefix');
+		
+		$sql = 'SELECT * FROM '.$table_prefix.'form_response WHERE incident_id IN('.$in_str.') ORDER BY incident_id ASC';
+		
+		$result = mysql_query($sql);		
+		$cff_data = array();
+		$current_incident_id = -1;
+		while ($data = mysql_fetch_assoc($result))
+		{
+			//handle a new id
+			if($current_incident_id != $data['incident_id'])
+			{
+				$cff_data[$data['incident_id']] = array();
+				$current_incident_id = $data['incident_id'];
+			}
+			$cff_data[$data['incident_id']][$data['form_field_id']] = $data['form_response'];
+		}
+		mysql_close($db_handle);
+		
+	
+		return $cff_data;
+		
+	}
+	
+	
+	
+	/**
+	 * This function grabs all the custom form field data for a given in string
+	 * @param unknown_type $in_str The string for a MySQL IN statement
+	 */
+	private static function get_category_values($in_str)
+	{
+		$user_name = Kohana::config('database.default.connection.user');
+		$password = Kohana::config('database.default.connection.pass');
+		$database = Kohana::config('database.default.connection.database');
+		$server = Kohana::config('database.default.connection.host');
+		$db_handle = mysql_connect($server, $user_name, $password);
+		$db_found = mysql_select_db($database, $db_handle);
+	
+		// Get the table prefix
+		$table_prefix = Kohana::config('database.default.table_prefix');
+	
+		$sql = 'SELECT * FROM '.$table_prefix.'incident_category WHERE incident_id IN('.$in_str.') ORDER BY incident_id ASC';
+	
+		$result = mysql_query($sql);
+		$cff_data = array();
+		$current_incident_id = -1;
+		while ($data = mysql_fetch_assoc($result))
+		{
+			//handle a new id
+			if($current_incident_id != $data['incident_id'])
+			{
+				$cff_data[$data['incident_id']] = array();
+				$current_incident_id = $data['incident_id'];
+			}
+			$cff_data[$data['incident_id']][$data['category_id']] = TRUE;
+		}
+		mysql_close($db_handle);
+	
+	
+		return $cff_data;
+	
+	}
+	
 	
 
 	
