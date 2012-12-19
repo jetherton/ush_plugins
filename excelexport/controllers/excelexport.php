@@ -31,38 +31,75 @@ class excelexport_Controller extends Controller
 		}
 		
 		
-		//Include the files needed to make the PHPExcel stuff work. I use "_excelexport" to make sure I don't have
-		//naming conflicts
-		require_once Kohana::find_file('libraries/PHPExcel_excelexport/Classes','PHPExcel');
-		require_once Kohana::find_file('libraries/PHPExcel_excelexport/Classes/PHPExcel','IOFactory');
+		if(isset($_GET['html']))
+		{
+			//set the header types
+			header("Content-type: text/html");
+			header('Cache-Control: max-age=0');
+			header('Content-Disposition: attachment; filename="watertracker.html"');
+			echo '<html xmlns:o="urn:schemas-microsoft-com:office:office"
+			xmlns:x="urn:schemas-microsoft-com:office:excel"
+			xmlns="http://www.w3.org/TR/REC-html40">
+			    <head>
+			        <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+			        <meta name="ProgId content=Excel.Sheet">
+			        <meta name="Generator" content="Microsoft Excel 10">
+			        <style>
+						table
+						{
+						border-collapse:collapse;
+						}
+						td
+						{
+						border: solid 1px black;
+						mso-number-format:"\@";/*force text*/
+						}
+						th
+						{
+						border: solid 1px black;
+						}
+						.odd{
+							background-color:#CEE6FF;
+						}
+						.header{
+							background-color:#999999;
+							font-size:14pt;
+						}
+						.cff
+						{
+							background-color:#FFCCCC;
+						}
+						.cat
+						{
+							background-color:#CCFFCC;
+							mso-number-format:"0";
+						}
+						.catodd
+						{
+							background-color:#CEE6FF;
+							mso-number-format:"0";
+						}
+					</style>
+					</header>
+					<table>';
+		}
+		else
+		{
+			//set the header types
+			header("Content-type: text/x-csv");
+			header('Cache-Control: max-age=0');
+			header('Content-Disposition: attachment; filename="watertracker.csv"');
+		}
 		
-		//craete a new PHPExcel object
-		$objPHPExcel = new PHPExcel();
-		
-		// Set properties
-		$objPHPExcel->getProperties()->setCreator("WaterTracker")
-			->setLastModifiedBy("WaterTracker")
-			->setTitle("WaterTracker Data Export")
-			->setSubject("WaterTracker Data Export")
-			->setDescription("WaterTracker Data Export. Created on ".date("r"))
-			->setKeywords("WaterTracker")
-			->setCategory("WaterTracker");
-		
-		//grab the sheet
-		$sheet = $objPHPExcel->setActiveSheetIndex(0);
-		
-		//make every cell have a border
-		$border_style = array(
-				'borders' => array(
-				 'allborders' => array(
-				 		'style' => PHPExcel_Style_Border::BORDER_THIN
-				 )
-				)
-		);
-		//$objPHPExcel->getDefaultStyle()->applyFromArray( $border_style );
-		
-		//start working on the header				
-		$sheet->setCellValue('A1', "Link");	
+		//start working on the header
+		if(isset($_GET['html']))
+		{
+			echo '<tr><th class="header">Link</th>';
+		}
+		else
+		{				
+			echo 'Link';
+		}	
 		
 		
 		
@@ -79,12 +116,18 @@ class excelexport_Controller extends Controller
 				'incident_date_added'=>'K',
 				'incident_date_last_modified'=>'L',
 				);
-		$column_number = 1;
+		
 		foreach($static_values as $title=>$column)
 		{
-			$column = self::num2alpha($column_number);
-			$column_number++;
-			$sheet->setCellValue($column . '1', $title);
+			$name = ucwords(str_replace('_', ' ', $title));
+			if(isset($_GET['html']))
+			{
+				echo '<th class="header">'.$name.'</th>';
+			}
+			else
+			{
+				echo ','.$name;
+			}
 		}
 		
 		//get the custom form fields
@@ -97,10 +140,15 @@ class excelexport_Controller extends Controller
 			{
 				continue;
 			}
-			$column = self::num2alpha($column_number);
 			$cff_values[str_replace(' ', '_', $c->field_name)] = $column;
-			$column_number++;
-			$sheet->setCellValue($column . '1', $c->field_name);
+			if(isset($_GET['html']))
+			{
+				echo '<th class="header">'.$c->field_name.'</th>';
+			}
+			else
+			{
+				echo ',"'.str_replace('"', '"""', $c->field_name).'"';
+			}
 		}
 		
 		//get the categories
@@ -109,174 +157,136 @@ class excelexport_Controller extends Controller
 		//loop over the custom form fields
 		foreach($cats as $c)
 		{
-			$column = self::num2alpha($column_number);
 			$cat_values[str_replace(' ', '_', $c->category_title)] = $column;
-			$column_number++;
-			$sheet->setCellValue($column . '1', $c->category_title);
+			if(isset($_GET['html']))
+			{
+				echo '<th class="header">'.$c->category_title.'</th>';
+			}
+			else
+			{
+				echo ',"'.str_replace('"', '"""', $c->category_title).'"';
+			}
+		}
+		if(isset($_GET['html']))
+		{
+			echo '</tr>';
 		}
 		
-		
-		//set the style of the header
-		$style_header = array(
-				'fill' => array(
-						'type' => PHPExcel_Style_Fill::FILL_SOLID,
-						'color' => array('rgb'=>'CCCCCC'),
-				),
-				'font' => array(
-						'bold' => true,
-						'size' => 14
-				)
-		);
-		//$sheet->getStyle('1')->applyFromArray( $style_header );
-		
-		
-
 		
 		//get the incidents
-		
-		if(isset($_GET['debug'])){
-			$total__dbtime = microtime(true);
-		}
+		if(isset($_GET['debug'])){$total__dbtime = microtime(true);}
 	 	$cff_incidents = self::fetch_incidents(false);
-	 	if(isset($_GET['debug'])){
-	 		$temp = microtime(true) - $total__dbtime;
-	 		echo "\r\n<br/><br/><br/><br/> time to fetch CFF incidents: " . $temp;
-	 		$total__cattime = microtime(true);
-	 	}
+	 	
+	 	if(isset($_GET['debug'])){$temp = microtime(true) - $total__dbtime; echo "\r\n<br/><br/><br/><br/> time to fetch CFF incidents: " . $temp; $total__cattime = microtime(true);}
 	 	$cat_incidents = self::fetch_incidents(true);
-	 	if(isset($_GET['debug'])){
-	 		$temp = microtime(true) - $total__cattime;
-	 		echo "\r\n<br/><br/><br/><br/> time to fetch Cat incidents: " . $temp;
-	 		$temp = microtime(true) - $total__dbtime;
-	 		echo "\r\n<br/><br/><br/><br/> time to fetch all incidents: " . $temp;
-	 	}
+	 	
+	 	if(isset($_GET['debug'])){$temp = microtime(true) - $total__cattime;echo "\r\n<br/><br/><br/><br/> time to fetch Cat incidents: " . $temp;$temp = microtime(true) - $total__dbtime;echo "\r\n<br/><br/><br/><br/> time to fetch all incidents: " . $temp;}
 	 	
 	 	
 
 	 	
-	 	//set the odd_row style
-	 	$odd_row = array(
-	 			'fill' => array(
-	 					'type' => PHPExcel_Style_Fill::FILL_SOLID,
-	 					'color' => array('rgb'=>'99CCFF'),
-	 			),		
-	 	);
-	 	
 
-	 	if(isset($_GET['debug'])){
-	 		$total__sheettime = microtime(true);
-	 	}
-	 	//loop over incidents and build the spread sheet	 	
-	 	$i = 1;
-	 	$s = array();
+	 	if(isset($_GET['debug'])){$total__sheettime = microtime(true);}
+
+	 	//loop over incidents and build the spread sheet	
+	 	$i = 0; 	
 	 	foreach($cff_incidents as $incident_id=>$incident)
-	 	{	 		
-	 		$i++;
-	 		$s[$i] = array();
-	 		//do the link
-	 		//$sheet->setCellValue('A' . $i, '=HYPERLINK("'.url::base().'reports/view/'.$incident['incident_id'].'", "'.url::base().'reports/view/'.$incident['incident_id'].'")');
-	 		$s[$i][] = '=HYPERLINK("'.url::base().'reports/view/'.$incident['incident_id'].'", "'.url::base().'reports/view/'.$incident['incident_id'].'")';
+	 	{	
+			$i++;
+			$class = '';
+			if($i % 2)
+			{
+				$class = 'class="odd"';  
+			}
+	 		$link = url::base().'reports/view/'.$incident['incident_id'];
+	 		
+	 		if(isset($_GET['html']))
+	 		{
+	 			echo '<tr>';
+	 			echo '<td '.$class.'><a href="'.$link.'">'.$link.'</a></td>';
+	 		}
+	 		else
+	 		{
+	 			echo "\r\n"; //new line
+	 			echo '"'.str_replace('"', '"""', $link).'"';
+	 		}
+	 		
+	 		
+	 		
 	 		//do the static values
 	 		foreach($static_values as $key=>$column)
 	 		{
-	 			//$sheet->setCellValue($column . $i, $incident[$key]);
-	 			$s[$i][] = $incident[$key];
+	 			if(isset($_GET['html']))
+	 			{
+	 				echo '<td '.$class.'>'.$incident[$key].'</td>';
+	 			}
+	 			else
+	 			{
+	 				echo ',"'.str_replace('"', '"""', $incident[$key]).'"';
+	 			}
 	 		}
 	 		//do the CFF values
 	 		foreach($cff_values as $key=>$column)
 	 		{
-	 			//$sheet->setCellValue($column . $i, $incident[$key]);
-	 			$s[$i][] = $incident[$key];
+	 			//change up the odd even stuff when we're doing cff
+		 		if($i % 2)
+				{
+					$class = 'class="odd"';  
+				}
+				else
+				{
+					$class = 'class="cff"';
+				}
+				
+				//write out to the file
+	 			if(isset($_GET['html']))
+	 			{
+	 				echo '<td '.$class.'>'.$incident[$key].'</td>';
+	 			}
+	 			else
+	 			{
+	 				echo ',"'.str_replace('"', '"""', $incident[$key]).'"';
+	 			}
 	 		}
 	 		//do the category values
 	 		foreach($cat_values as $key=>$column)
 	 		{
-	 			//$sheet->setCellValue($column . $i, $cat_incidents[$incident_id][$key]);
-	 			$s[$i][] = $cat_incidents[$incident_id][$key];
+	 			if($i % 2)
+	 			{
+	 				$class = 'class="catodd"';
+	 			}
+	 			else
+	 			{
+	 				$class = 'class="cat"';
+	 			}
+	 			
+	 			if(isset($_GET['html']))
+	 			{
+	 				echo '<td '.$class.'>'.$cat_incidents[$incident_id][$key].'</td>';
+	 			}
+	 			else
+	 			{
+	 				echo ',"'.str_replace('"', '"""', $cat_incidents[$incident_id][$key]).'"';
+	 			}
 	 		}
-
 	 		
-	 		
-	 		//shade alternating rows
-	 		if($i % 2)
+	 		if(isset($_GET['html']))
 	 		{
-	 			//$sheet->getStyle($i)->applyFromArray( $odd_row );
+	 			echo "</tr>";
 	 		}
 	 		
+	 	}
+	 	
+	 	
+	 	if(isset($_GET['html']))
+	 	{
+	 		echo "</table>";
 	 	}
 	 	
 	 	if(isset($_GET['debug'])){
 	 		echo "\r\n<br/><br/> Time too loop over things: " . (microtime(true) - $total__sheettime);
 	 	}
-	 	
-	 	$sheet->fromArray($s, null, 'A1');
-	 	
-	 	if(isset($_GET['debug'])){
-	 		$temp = microtime(true) - $total__sheettime;
-	 		echo "\r\n<br/><br/>: total time to loop over incidents and make sheets: " . $temp;
-	 		$total__formatsheettime = microtime(true);
-	 	}
-	 	
-	 	//style the custom form field columns
-	 	$style_cff = array(
-	 			'fill' => array(
-	 					'type' => PHPExcel_Style_Fill::FILL_SOLID,
-	 					'color' => array('rgb'=>'FFB2B2'),
-	 			)
-	 	);
-	 	foreach($cff_values as $column)
-	 	{
-	 		//$sheet->getStyle($column)->applyFromArray( $style_cff );
-	 	}
-	 	//style the categories form field columns
-	 	$style_cat = array(
-	 			'fill' => array(
-	 					'type' => PHPExcel_Style_Fill::FILL_SOLID,
-	 					'color' => array('rgb'=>'C2FFC2'),
-	 			),	 			
-	 	);
-	 	foreach($cat_values as $column)
-	 	{
-	 		//$sheet->getStyle($column)->applyFromArray( $style_cat );
-	 	}
-	 	
-	 	//now auto size everything
-	 	$sheet->getColumnDimension('A')->setAutoSize(true);
-	 	foreach($static_values as $column)
-	 	{
-	 		//$sheet->getColumnDimension($column)->setAutoSize(true);
-	 	}
-	 	foreach($cff_values as $column)
-	 	{
-	 		//$sheet->getColumnDimension($column)->setAutoSize(true);
-	 	}
-	 	foreach($cat_values as $column)
-	 	{
-	 		//$sheet->getColumnDimension($column)->setAutoSize(true);
-	 	}
-	 	if(isset($_GET['debug'])){
-	 		$temp = microtime(true) - $total__formatsheettime;
-	 		echo "\r\n<br/><br/>: total time to format sheets: " . $temp;
-	 		$temp = microtime(true) - $total__sheettime;
-	 		echo "\r\n<br/><br/>: total time to make sheets: " . $temp;
-	 	}
 
-	 	if(isset($_GET['debug'])){
-	 		$total_time = microtime(true) - $start;
-	 		echo "\r\n<br/><br/>\r\n<br/><br/> Total run time: ". $total_time;	 		
-	 		exit;
-	 	}
-		 	
-	 	//set the header types
-	 	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-	 	header('Content-Disposition: attachment;filename="watertracker.xlsx"');
-	 	header('Cache-Control: max-age=0');	 	
-	 	
-	 	
-	 	// Save Excel 2007 file
-	 	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	 	//$objWriter->save(Kohana::config('upload.directory', TRUE).time().".xlsx");
-	 	$objWriter->save('php://output');
 
 	 			
 	}//end index method
