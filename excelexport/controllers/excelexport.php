@@ -25,6 +25,12 @@ class excelexport_Controller extends Controller
 	
 	public function index()
 	{
+		
+		if(isset($_GET['debug'])){
+			$start = microtime(true);
+		}
+		
+		
 		//Include the files needed to make the PHPExcel stuff work. I use "_excelexport" to make sure I don't have
 		//naming conflicts
 		require_once Kohana::find_file('libraries/PHPExcel_excelexport/Classes','PHPExcel');
@@ -53,10 +59,11 @@ class excelexport_Controller extends Controller
 				 )
 				)
 		);
-		$objPHPExcel->getDefaultStyle()->applyFromArray( $border_style );
+		//$objPHPExcel->getDefaultStyle()->applyFromArray( $border_style );
 		
 		//start working on the header				
 		$sheet->setCellValue('A1', "Link");	
+		
 		
 		
 		//set the hard coded values we capture
@@ -120,14 +127,29 @@ class excelexport_Controller extends Controller
 						'size' => 14
 				)
 		);
-		$sheet->getStyle('1')->applyFromArray( $style_header );
+		//$sheet->getStyle('1')->applyFromArray( $style_header );
 		
 		
 
 		
 		//get the incidents
+		
+		if(isset($_GET['debug'])){
+			$total__dbtime = microtime(true);
+		}
 	 	$cff_incidents = self::fetch_incidents(false);
+	 	if(isset($_GET['debug'])){
+	 		$temp = microtime(true) - $total__dbtime;
+	 		echo "\r\n<br/><br/><br/><br/> time to fetch CFF incidents: " . $temp;
+	 		$total__cattime = microtime(true);
+	 	}
 	 	$cat_incidents = self::fetch_incidents(true);
+	 	if(isset($_GET['debug'])){
+	 		$temp = microtime(true) - $total__cattime;
+	 		echo "\r\n<br/><br/><br/><br/> time to fetch Cat incidents: " . $temp;
+	 		$temp = microtime(true) - $total__dbtime;
+	 		echo "\r\n<br/><br/><br/><br/> time to fetch all incidents: " . $temp;
+	 	}
 	 	
 	 	
 
@@ -140,35 +162,59 @@ class excelexport_Controller extends Controller
 	 			),		
 	 	);
 	 	
-		 	
+
+	 	if(isset($_GET['debug'])){
+	 		$total__sheettime = microtime(true);
+	 	}
 	 	//loop over incidents and build the spread sheet	 	
 	 	$i = 1;
+	 	$s = array();
 	 	foreach($cff_incidents as $incident_id=>$incident)
-	 	{
+	 	{	 		
 	 		$i++;
+	 		$s[$i] = array();
 	 		//do the link
-	 		$sheet->setCellValue('A' . $i, '=HYPERLINK("'.url::base().'reports/view/'.$incident['incident_id'].'", "'.url::base().'reports/view/'.$incident['incident_id'].'")');
+	 		//$sheet->setCellValue('A' . $i, '=HYPERLINK("'.url::base().'reports/view/'.$incident['incident_id'].'", "'.url::base().'reports/view/'.$incident['incident_id'].'")');
+	 		$s[$i][] = '=HYPERLINK("'.url::base().'reports/view/'.$incident['incident_id'].'", "'.url::base().'reports/view/'.$incident['incident_id'].'")';
 	 		//do the static values
 	 		foreach($static_values as $key=>$column)
 	 		{
-	 			$sheet->setCellValue($column . $i, $incident[$key]);
+	 			//$sheet->setCellValue($column . $i, $incident[$key]);
+	 			$s[$i][] = $incident[$key];
 	 		}
 	 		//do the CFF values
 	 		foreach($cff_values as $key=>$column)
 	 		{
-	 			$sheet->setCellValue($column . $i, $incident[$key]);
+	 			//$sheet->setCellValue($column . $i, $incident[$key]);
+	 			$s[$i][] = $incident[$key];
 	 		}
 	 		//do the category values
 	 		foreach($cat_values as $key=>$column)
 	 		{
-	 			$sheet->setCellValue($column . $i, $cat_incidents[$incident_id][$key]);
+	 			//$sheet->setCellValue($column . $i, $cat_incidents[$incident_id][$key]);
+	 			$s[$i][] = $cat_incidents[$incident_id][$key];
 	 		}
-	 			 		
+
+	 		
+	 		
 	 		//shade alternating rows
 	 		if($i % 2)
 	 		{
-	 			$sheet->getStyle($i)->applyFromArray( $odd_row );
+	 			//$sheet->getStyle($i)->applyFromArray( $odd_row );
 	 		}
+	 		
+	 	}
+	 	
+	 	if(isset($_GET['debug'])){
+	 		echo "\r\n<br/><br/> Time too loop over things: " . (microtime(true) - $total__sheettime);
+	 	}
+	 	
+	 	$sheet->fromArray($s, null, 'A1');
+	 	
+	 	if(isset($_GET['debug'])){
+	 		$temp = microtime(true) - $total__sheettime;
+	 		echo "\r\n<br/><br/>: total time to loop over incidents and make sheets: " . $temp;
+	 		$total__formatsheettime = microtime(true);
 	 	}
 	 	
 	 	//style the custom form field columns
@@ -180,7 +226,7 @@ class excelexport_Controller extends Controller
 	 	);
 	 	foreach($cff_values as $column)
 	 	{
-	 		$sheet->getStyle($column)->applyFromArray( $style_cff );
+	 		//$sheet->getStyle($column)->applyFromArray( $style_cff );
 	 	}
 	 	//style the categories form field columns
 	 	$style_cat = array(
@@ -191,25 +237,35 @@ class excelexport_Controller extends Controller
 	 	);
 	 	foreach($cat_values as $column)
 	 	{
-	 		$sheet->getStyle($column)->applyFromArray( $style_cat );
+	 		//$sheet->getStyle($column)->applyFromArray( $style_cat );
 	 	}
 	 	
 	 	//now auto size everything
 	 	$sheet->getColumnDimension('A')->setAutoSize(true);
 	 	foreach($static_values as $column)
 	 	{
-	 		$sheet->getColumnDimension($column)->setAutoSize(true);
+	 		//$sheet->getColumnDimension($column)->setAutoSize(true);
 	 	}
 	 	foreach($cff_values as $column)
 	 	{
-	 		$sheet->getColumnDimension($column)->setAutoSize(true);
+	 		//$sheet->getColumnDimension($column)->setAutoSize(true);
 	 	}
 	 	foreach($cat_values as $column)
 	 	{
-	 		$sheet->getColumnDimension($column)->setAutoSize(true);
+	 		//$sheet->getColumnDimension($column)->setAutoSize(true);
+	 	}
+	 	if(isset($_GET['debug'])){
+	 		$temp = microtime(true) - $total__formatsheettime;
+	 		echo "\r\n<br/><br/>: total time to format sheets: " . $temp;
+	 		$temp = microtime(true) - $total__sheettime;
+	 		echo "\r\n<br/><br/>: total time to make sheets: " . $temp;
 	 	}
 
-	 		
+	 	if(isset($_GET['debug'])){
+	 		$total_time = microtime(true) - $start;
+	 		echo "\r\n<br/><br/>\r\n<br/><br/> Total run time: ". $total_time;	 		
+	 		exit;
+	 	}
 		 	
 	 	//set the header types
 	 	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
