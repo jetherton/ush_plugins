@@ -7,7 +7,8 @@
  */
 
 	$lang = array(
-			'export_to_excel'=>'Export to Excel',
+			'export_to_csv'=>'Export to CSV',
+			'export_to_html_table'=>'Export to HTML Table',
 );
 	
 	

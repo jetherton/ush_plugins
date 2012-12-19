@@ -91,6 +91,8 @@ class excelexport_Controller extends Controller
 			header('Content-Disposition: attachment; filename="watertracker.csv"');
 		}
 		
+		flush();
+		
 		//start working on the header
 		if(isset($_GET['html']))
 		{
@@ -172,110 +174,126 @@ class excelexport_Controller extends Controller
 			echo '</tr>';
 		}
 		
-		
-		//get the incidents
-		if(isset($_GET['debug'])){$total__dbtime = microtime(true);}
-	 	$cff_incidents = self::fetch_incidents(false);
-	 	
-	 	if(isset($_GET['debug'])){$temp = microtime(true) - $total__dbtime; echo "\r\n<br/><br/><br/><br/> time to fetch CFF incidents: " . $temp; $total__cattime = microtime(true);}
-	 	$cat_incidents = self::fetch_incidents(true);
-	 	
-	 	if(isset($_GET['debug'])){$temp = microtime(true) - $total__cattime;echo "\r\n<br/><br/><br/><br/> time to fetch Cat incidents: " . $temp;$temp = microtime(true) - $total__dbtime;echo "\r\n<br/><br/><br/><br/> time to fetch all incidents: " . $temp;}
-	 	
-	 	
-
-	 	
-
-	 	if(isset($_GET['debug'])){$total__sheettime = microtime(true);}
-
-	 	//loop over incidents and build the spread sheet	
-	 	$i = 0; 	
-	 	foreach($cff_incidents as $incident_id=>$incident)
-	 	{	
-			$i++;
-			$class = '';
-			if($i % 2)
+		$offset = 0;
+		$repeat = true;		
+		//we loop over things as we pull in 1000 reports at a time
+		while($repeat)
+		{
+			//get the incidents
+			if(isset($_GET['debug'])){$total__dbtime = microtime(true);}
+		 	$cff_incidents = self::fetch_incidents(false, $offset);
+		 	
+		 	if(isset($_GET['debug'])){$temp = microtime(true) - $total__dbtime; echo "\r\n<br/><br/><br/><br/> time to fetch CFF incidents: " . $temp; $total__cattime = microtime(true);}
+		 	$cat_incidents = self::fetch_incidents(true, $offset);
+		 	
+		 	if(isset($_GET['debug'])){$temp = microtime(true) - $total__cattime;echo "\r\n<br/><br/><br/><br/> time to fetch Cat incidents: " . $temp;$temp = microtime(true) - $total__dbtime;echo "\r\n<br/><br/><br/><br/> time to fetch all incidents: " . $temp;}
+		 	
+		 	//keep repeating if we maxed out the number of reports returned
+			if(count($cff_incidents) == 1000)
 			{
-				$class = 'class="odd"';  
+				$repeat = true;
 			}
-	 		$link = url::base().'reports/view/'.$incident['incident_id'];
-	 		
-	 		if(isset($_GET['html']))
-	 		{
-	 			echo '<tr>';
-	 			echo '<td '.$class.'><a href="'.$link.'">'.$link.'</a></td>';
-	 		}
-	 		else
-	 		{
-	 			echo "\r\n"; //new line
-	 			echo '"'.str_replace('"', '"""', $link).'"';
-	 		}
-	 		
-	 		
-	 		
-	 		//do the static values
-	 		foreach($static_values as $key=>$column)
-	 		{
-	 			if(isset($_GET['html']))
-	 			{
-	 				echo '<td '.$class.'>'.$incident[$key].'</td>';
-	 			}
-	 			else
-	 			{
-	 				echo ',"'.str_replace('"', '"""', $incident[$key]).'"';
-	 			}
-	 		}
-	 		//do the CFF values
-	 		foreach($cff_values as $key=>$column)
-	 		{
-	 			//change up the odd even stuff when we're doing cff
-		 		if($i % 2)
+			else
+			{
+				$repeat = false;
+			}
+			$offset += 1000;
+	
+		 	if(isset($_GET['debug'])){$total__sheettime = microtime(true);}
+	
+		 	//loop over incidents and build the spread sheet	
+		 	$i = 0; 	
+		 	foreach($cff_incidents as $incident_id=>$incident)
+		 	{	
+				$i++;
+				$class = '';
+				if($i % 2)
 				{
 					$class = 'class="odd"';  
 				}
-				else
-				{
-					$class = 'class="cff"';
-				}
-				
-				//write out to the file
-	 			if(isset($_GET['html']))
-	 			{
-	 				echo '<td '.$class.'>'.$incident[$key].'</td>';
-	 			}
-	 			else
-	 			{
-	 				echo ',"'.str_replace('"', '"""', $incident[$key]).'"';
-	 			}
-	 		}
-	 		//do the category values
-	 		foreach($cat_values as $key=>$column)
-	 		{
-	 			if($i % 2)
-	 			{
-	 				$class = 'class="catodd"';
-	 			}
-	 			else
-	 			{
-	 				$class = 'class="cat"';
-	 			}
-	 			
-	 			if(isset($_GET['html']))
-	 			{
-	 				echo '<td '.$class.'>'.$cat_incidents[$incident_id][$key].'</td>';
-	 			}
-	 			else
-	 			{
-	 				echo ',"'.str_replace('"', '"""', $cat_incidents[$incident_id][$key]).'"';
-	 			}
-	 		}
-	 		
-	 		if(isset($_GET['html']))
-	 		{
-	 			echo "</tr>";
-	 		}
-	 		
-	 	}
+		 		$link = url::base().'reports/view/'.$incident['incident_id'];
+		 		
+		 		if(isset($_GET['html']))
+		 		{
+		 			echo '<tr>';
+		 			echo '<td '.$class.'><a href="'.$link.'">'.$link.'</a></td>';
+		 		}
+		 		else
+		 		{
+		 			echo "\r\n"; //new line
+		 			echo '"'.str_replace('"', '"""', $link).'"';
+		 		}
+		 		
+		 		
+		 		
+		 		//do the static values
+		 		foreach($static_values as $key=>$column)
+		 		{
+		 			if(isset($_GET['html']))
+		 			{
+		 				echo '<td '.$class.'>'.$incident[$key].'</td>';
+		 			}
+		 			else
+		 			{
+		 				echo ',"'.str_replace('"', '"""', $incident[$key]).'"';
+		 			}
+		 		}
+		 		//do the CFF values
+		 		foreach($cff_values as $key=>$column)
+		 		{
+		 			//change up the odd even stuff when we're doing cff
+			 		if($i % 2)
+					{
+						$class = 'class="odd"';  
+					}
+					else
+					{
+						$class = 'class="cff"';
+					}
+					
+					//write out to the file
+		 			if(isset($_GET['html']))
+		 			{
+		 				echo '<td '.$class.'>'.$incident[$key].'</td>';
+		 			}
+		 			else
+		 			{
+		 				echo ',"'.str_replace('"', '"""', $incident[$key]).'"';
+		 			}
+		 		}
+		 		//do the category values
+		 		foreach($cat_values as $key=>$column)
+		 		{
+		 			if($i % 2)
+		 			{
+		 				$class = 'class="catodd"';
+		 			}
+		 			else
+		 			{
+		 				$class = 'class="cat"';
+		 			}
+		 			
+		 			if(isset($_GET['html']))
+		 			{
+		 				echo '<td '.$class.'>'.$cat_incidents[$incident_id][$key].'</td>';
+		 			}
+		 			else
+		 			{
+		 				echo ',"'.str_replace('"', '"""', $cat_incidents[$incident_id][$key]).'"';
+		 			}
+		 		}
+		 		
+		 		if(isset($_GET['html']))
+		 		{
+		 			echo "</tr>";
+		 		}
+		 		
+		 		flush();
+		 		unset($cff_incidents[$incident_id]);
+		 		unset($cat_incidents[$incident_id]);
+		 		
+		 	}
+		}
 	 	
 	 	
 	 	if(isset($_GET['html']))
@@ -288,6 +306,7 @@ class excelexport_Controller extends Controller
 	 	}
 
 
+	 	exit;
 	 			
 	}//end index method
 
@@ -306,9 +325,10 @@ class excelexport_Controller extends Controller
 	 *	- location radius
 	 *
 	 * @param boolean $show_categories If true then we return the DB list with categories. If false we return the DB list with custom form fields
+	 * @param int $offset How far into the search results we want to go
 	 * @return Database_Result
 	 */
-	private static function fetch_incidents($show_categories = false)
+	private static function fetch_incidents($show_categories = false, $offset)
 	{
 	// Reset the paramters
 	self::$params = array();
@@ -619,7 +639,7 @@ class excelexport_Controller extends Controller
 		//> END PARAMETER FETCH
 	
 		// Fetch all the incidents
-		$all_incidents = self::get_incidents(self::$params, $show_categories);
+		$all_incidents = self::get_incidents(self::$params, $show_categories, $offset);
 		
 		return $all_incidents;
 		
@@ -632,10 +652,11 @@ class excelexport_Controller extends Controller
 	 * category and media tables
 	 *
 	 * @param array $where List of conditions to apply to the query
-	 * @param boolean $show_categories If true then we return the DB list with categories. If false we return the DB list with custom form fields	 
+	 * @param boolean $show_categories If true then we return the DB list with categories. If false we return the DB list with custom form fields
+	 * @param int $offset How far into the results we want to go	 
 	 * @return Database_Result
 	 */
-	private static function get_incidents($where = array(), $show_categories = false)
+	private static function get_incidents($where = array(), $show_categories = false, $offset)
 	{
 		// Get the table prefix
 		$table_prefix = Kohana::config('database.default.table_prefix');
@@ -760,15 +781,10 @@ class excelexport_Controller extends Controller
 			$sql .= 'ORDER BY i.incident_date DESC ';
 		}
 	
-		// Check if the record limit has been specified
-		if ( ! empty($limit) AND is_int($limit) AND intval($limit) > 0)
-		{
-			$sql .= 'LIMIT 0, '.$limit;
-		}
-		elseif ( ! empty($limit) AND $limit instanceof Pagination_Core)
-		{
-			$sql .= 'LIMIT '.$limit->sql_offset.', '.$limit->items_per_page;
-		}
+		
+		//make sure we grab things incrementally
+		$sql .= 'LIMIT '.$offset.', 1000';
+		
 		
 		
 		
@@ -792,16 +808,6 @@ class excelexport_Controller extends Controller
 		return $incidents;
 	}
 	
-	/**
-	 * Use this little gem to to go from a number to a Excel column number
-	 * Thanks Stack Overflow: http://stackoverflow.com/questions/3302857/algorithm-to-get-the-excel-like-column-name-of-a-number
-	 * @param int $n
-	 */
-	public static function num2alpha($n)
-	{
-		for($r = ""; $n >= 0; $n = intval($n / 26) - 1)
-			$r = chr($n%26 + 0x41) . $r;
-		return $r;
-	}
+
 	
 }

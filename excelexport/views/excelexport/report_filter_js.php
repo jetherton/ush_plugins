@@ -3,7 +3,7 @@
 /**
  * Toggle AND or OR
  */
-function excelExportClick()
+function excelExportClick(isHtml)
 {
 	var url =  	"<?php echo url::base()?>excelexport?";
 
@@ -15,6 +15,11 @@ function excelExportClick()
 	}
 
 	url += $.param(urlParameters);
+
+	if(isHtml)
+	{
+		url += "&html=true";
+	}
 	
 	window.location = url;
 	return false;
@@ -25,7 +30,10 @@ function excelExportClick()
  */
 $(document).ready(function() {
 
-	var html = '<br/><a href="<?php echo url::base()?>excelexport" id="excelExport" onclick="excelExportClick(); return false;" class="exportButton"><?php echo Kohana::lang('excelexport.export_to_excel')?></a>';
+	var html = '<br/><a href="<?php echo url::base()?>excelexport?" id="excelExport" onclick="excelExportClick(false); return false;" class="exportButton"><?php echo Kohana::lang('excelexport.export_to_csv')?></a>';
+	$("#filter-controls p").append(html);
+
+	html = '<br/><br/><a href="<?php echo url::base()?>excelexport" id="excelExport" onclick="excelExportClick(true); return false;" class="exportButton"><?php echo Kohana::lang('excelexport.export_to_html_table')?></a>';
 	$("#filter-controls p").append(html);
 });
 
