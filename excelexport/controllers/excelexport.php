@@ -158,7 +158,7 @@ class excelexport_Controller extends Controller
 			}
 			else
 			{
-				echo ',"'.str_replace('"', '"""', $c->field_name).'"';
+				echo ',"'.str_replace('"', '""', $c->field_name).'"';
 			}
 		}
 		
@@ -176,7 +176,7 @@ class excelexport_Controller extends Controller
 			}
 			else
 			{
-				echo ',"'.str_replace('"', '"""', $c->category_title).'"';
+				echo ',"'.str_replace('"', '""', $c->category_title).'"';
 			}
 		}
 		
@@ -240,7 +240,7 @@ class excelexport_Controller extends Controller
 		 		else
 		 		{
 		 			echo "\r\n"; //new line
-		 			echo '"'.str_replace('"', '"""', $link).'"';
+		 			echo '"'.str_replace('"', '""', $link).'"';
 		 		}
 		 		
 		 		
@@ -254,7 +254,8 @@ class excelexport_Controller extends Controller
 		 			}
 		 			else
 		 			{
-		 				echo ',"'.str_replace('"', '"""', $incident[$key]).'"';
+		 				$prefix = is_numeric($incident[$key]) ? '=' : '';
+		 				echo ','.$prefix.'"'.str_replace('"', '""', $incident[$key]).'"';
 		 			}
 		 		}
 		 		
@@ -291,7 +292,8 @@ class excelexport_Controller extends Controller
 		 			}
 		 			else
 		 			{
-		 				echo ',"'.str_replace('"', '"""', $value).'"';
+		 				$prefix = is_numeric($value) ? '=' : '';
+		 				echo ','.$prefix.'"'.str_replace('"', '""', $value).'"';
 		 			}
 		 		}
 		 		
@@ -322,7 +324,8 @@ class excelexport_Controller extends Controller
 		 			}
 		 			else
 		 			{
-		 				echo ',"'.str_replace('"', '"""', $value).'"';
+		 				$prefix = is_numeric($value) ? '=' : '';
+		 				echo ','.$prefix.'"'.str_replace('"', '""', $value).'"';
 		 			}
 		 		}
 		 		
