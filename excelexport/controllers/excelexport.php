@@ -115,22 +115,21 @@ class excelexport_Controller extends Controller
 		
 		
 		//set the hard coded values we capture
-		$static_values = array('incident_id'=>'B',
-				'incident_title'=>'C',
-				'incident_description'=>'D',
-				'incident_date'=>'E',
-				'incident_active'=>'F',
-				'incident_verified'=>'G',
-				'location_name'=>'H',
-				'latitude'=>'I',
-				'longitude'=>'J',
-				'incident_date_added'=>'K',
-				'incident_date_last_modified'=>'L',
+		$static_values = array('incident_id'=>'Database ID',
+				'incident_title'=>'Well Title',
+				'incident_description'=>'Well Description',
+				'incident_date'=>'Date Well Added',
+				'incident_active'=>'Is Active in database',
+				'incident_verified'=>'Is Verified in database',
+				'location_name'=>'Name of Location',
+				'latitude'=>'Latitude',
+				'longitude'=>'Longitude',
+				'incident_date_added'=>'Date well added to the system',
+				'incident_date_last_modified'=>'Date well last modified in the system',
 				);
 		
-		foreach($static_values as $title=>$column)
+		foreach($static_values as $title=>$name)
 		{
-			$name = ucwords(str_replace('_', ' ', $title));
 			if(isset($_GET['html']))
 			{
 				echo '<th class="header">'.$name.'</th>';
@@ -813,6 +812,10 @@ class excelexport_Controller extends Controller
 	 */
 	private static function get_custom_form_field_values($in_str)
 	{
+		if($in_str == "" OR $in_str == null)
+		{
+			return array();
+		}
 		$user_name = Kohana::config('database.default.connection.user');
 		$password = Kohana::config('database.default.connection.pass');
 		$database = Kohana::config('database.default.connection.database');
@@ -824,7 +827,7 @@ class excelexport_Controller extends Controller
 		$table_prefix = Kohana::config('database.default.table_prefix');
 		
 		$sql = 'SELECT * FROM '.$table_prefix.'form_response WHERE incident_id IN('.$in_str.') ORDER BY incident_id ASC';
-		
+
 		$result = mysql_query($sql);		
 		$cff_data = array();
 		$current_incident_id = -1;
@@ -853,6 +856,12 @@ class excelexport_Controller extends Controller
 	 */
 	private static function get_category_values($in_str)
 	{
+		
+		if($in_str == "" OR $in_str == null)
+		{
+			return array();
+		}
+		
 		$user_name = Kohana::config('database.default.connection.user');
 		$password = Kohana::config('database.default.connection.pass');
 		$database = Kohana::config('database.default.connection.database');
