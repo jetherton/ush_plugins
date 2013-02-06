@@ -21,7 +21,6 @@ class Usermsg_Controller extends Main_Controller {
 		header('Content-type: application/json; charset=utf-8');
 		//make sure all the necessary fields are present
 		if(!(isset($_POST['incident_id']) AND
-				isset($_POST['name']) AND 
 				isset($_POST['email']) AND
 				isset($_POST['subject']) AND
 				isset($_POST['content'])))
@@ -39,7 +38,19 @@ class Usermsg_Controller extends Main_Controller {
 		{
 			$from_user_id = $_SESSION['auth_user']->id;
 		}
-		
+		//check the length of the email
+		if(strlen($_POST['email']) > 254)
+		{
+			echo '{"status":"error", "message":"'.Kohana::lang('usermsg.email_too_long').'"}';
+			return;
+		}
+		//check the length of the subject
+		if(strlen($_POST['subject']) > 254)
+		{
+			echo '{"status":"error", "message":"'.Kohana::lang('usermsg.subject_too_long').'"}';
+			return;
+		}
+					
 		//create the message
 		$message = ORM::factory('usermsg');
 		$message->to_user_id = $user_id;
@@ -103,6 +114,13 @@ class Usermsg_Controller extends Main_Controller {
 			echo '{"status":"error"}';
 			return;
 		}
+		
+		//check the length of the subject
+		if(strlen($_POST['subject']) > 254)
+		{
+			echo '{"status":"error", "message":"'.Kohana::lang('usermsg.subject_too_long').'"}';
+			return;
+		}
 	
 		//create the reply message
 		$reply = ORM::factory('usermsg');
@@ -135,6 +153,16 @@ class Usermsg_Controller extends Main_Controller {
 		{
 			// This user isn't allowed to view an inbox
 			url::redirect('/');
+		}
+		
+		if($_POST)
+		{
+			$message_id = isset($_POST['message_id']) ? intval($_POST['message_id']) : 0;
+			if($message_id != 0)
+			{
+				$message = ORM::factory('usermsg',$message_id);
+				$message->delete();
+			}
 		}
 		
 		

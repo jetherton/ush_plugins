@@ -18,10 +18,7 @@
 
 		<div id="sendMessageWaitHolder" style="float:right;"></div>
 		
-		<div class="report_row">
-			<strong><?php echo Kohana::lang('usermsg.Name:')?></strong>(<?php echo Kohana::lang('usermsg.optional');?>)<br>
-			<?php print form::input('msg_name',null, ' class="text" id="msg_name"'); ?>			
-		</div>
+		
 		<div class="report_row" <?php 
 		
 		if(isset($_SESSION['auth_user']))
@@ -83,7 +80,14 @@
 				    }
 				    else
 				    {
-					    alert("Error sending. Please try again.");
+					    if(typeof data.message == 'undefined')
+					    {
+					    	alert("Error sending. Please try again.");
+					    }
+					    else
+					    {
+						    alert(data.message);
+					    }
 				    }
 				  }, "json");	
 	});

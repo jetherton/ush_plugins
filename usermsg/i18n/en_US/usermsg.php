@@ -27,7 +27,8 @@
 		'Cancel' => 'Cancel',
 		'New message recieved'=>'New message recieved',
 		'You have a new message waiting for you on'=>'You have a new message waiting for you on',
-			
+		'email_too_long'=>'The email field cannot have more than 254 characters',
+		'subject_too_long'=>'The subject field cannot have more than 254 characters',
 	);
 	
 	

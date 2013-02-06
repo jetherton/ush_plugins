@@ -33,6 +33,14 @@ function userMsgReply(id){
 	$("#usermsgReplyDiv_"+id).show();
 }
 
+function deleteMsg(id)
+{
+	if(confirm("Are you sure you want to delete this message?")){
+		$("#message_id").val(id);
+		$("#inboxForm").submit();
+	}
+}
+
 function userMsgSendReply(id, isSend){
 	if(!isSend){
 		$("#usermsgReplyDiv_"+id).hide();
@@ -60,7 +68,14 @@ function userMsgSendReply(id, isSend){
 				    }
 				    else
 				    {
-					    alert("Error sending. Please try again.");
+					    if(typeof data.message == 'undefined')
+					    {
+					    	alert("Error sending. Please try again.");
+					    }
+					    else
+					    {
+						    alert(data.message);
+					    }
 				    }
 				  }, "json");  
 	}	
