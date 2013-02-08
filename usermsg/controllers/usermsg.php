@@ -16,21 +16,22 @@ class Usermsg_Controller extends Main_Controller {
 	 */
 	public function send_msg_report()
 	{
-		$this->auto_render = false;
-		
-		header('Content-type: application/json; charset=utf-8');
+	
+		$view = new View('usermsg/report_sent');
+		$this->template->content = $view;
 		//make sure all the necessary fields are present
-		if(!(isset($_POST['incident_id']) AND
-				isset($_POST['email']) AND
-				isset($_POST['subject']) AND
-				isset($_POST['content'])))
+		if(!( 
+				isset($_POST['msg_incident_id']) AND
+				isset($_POST['msg_email']) AND
+				isset($_POST['msg_subject']) AND
+				isset($_POST['msg_content'])
+			))
 		{
-			echo '{"status":"error"}';
-					return;
+			url::redirect(url::site().'main');
 		}
-		
+		$view->incident_id = $_POST['msg_incident_id'];
 		//grab the incident and find out what user submitted it
-		$user_id = ORM::factory('incident',$_POST['incident_id'])->user_id;
+		$user_id = ORM::factory('incident',$_POST['msg_incident_id'])->user_id;
 		$user = ORM::factory('user',$user_id);
 		$from_user_id = null; 
 		//see if we can figure out the who the sender is
@@ -39,15 +40,17 @@ class Usermsg_Controller extends Main_Controller {
 			$from_user_id = $_SESSION['auth_user']->id;
 		}
 		//check the length of the email
-		if(strlen($_POST['email']) > 254)
+		if(strlen($_POST['msg_email']) > 254)
 		{
-			echo '{"status":"error", "message":"'.Kohana::lang('usermsg.email_too_long').'"}';
+			$view->msg = Kohana::lang('usermsg.email_too_long');
+			$view->success = false;
 			return;
 		}
 		//check the length of the subject
-		if(strlen($_POST['subject']) > 254)
+		if(strlen($_POST['msg_subject']) > 254)
 		{
-			echo '{"status":"error", "message":"'.Kohana::lang('usermsg.subject_too_long').'"}';
+			$view->msg = Kohana::lang('usermsg.subject_too_long');
+			$view->success = false;
 			return;
 		}
 					
@@ -55,15 +58,20 @@ class Usermsg_Controller extends Main_Controller {
 		$message = ORM::factory('usermsg');
 		$message->to_user_id = $user_id;
 		$message->from_user_id = $from_user_id;
-		$message->msg_text = $_POST['content'];
-		$message->email = $_POST['email'];
-		$message->subject = $_POST['subject'];
+		$message->msg_text = $_POST['msg_content'];
+		$message->email = $_POST['msg_email'];
+		$message->subject = $_POST['msg_subject'];
 		$message->date = date('Y-m-d G:i:s');
 		$message->save();
 		
-		$this->send_email_alert($user_id);
+		/////////////////////////////////////////////////////////////////
+		///////////// Turn this back on /////////////////////////////
+		//$this->send_email_alert($user_id);
 		
-		echo '{"status":"success"}';
+		$view->msg = 'Message sent successfully';
+		$view->success = true;
+		
+		Event::run('usermsg.process_incoming_msg',$message);
 	}
 	
 	
@@ -74,68 +82,71 @@ class Usermsg_Controller extends Main_Controller {
 	 */
 	public function send_reply()
 	{
-		$this->auto_render = false;
-	
-		header('Content-type: application/json; charset=utf-8');
-		//make sure all the necessary fields are present
-		if(!(isset($_POST['id']) AND
-				isset($_POST['subject']) AND
-				isset($_POST['message'])))
-		{
-			echo '{"status":"error"}';
-			return;
-		}
-		
-		//get the ID of the current user
-		$user_id = null;
+
 		//see if we can figure out the who the sender is
 		if(isset($_SESSION['auth_user']))
 		{
-			$user_id = $_SESSION['auth_user']->id;
+			$from_user_id = $_SESSION['auth_user']->id;
 		}
 		else
 		{
-			echo '{"status":"error"}';
-			return;
+			//you can't send when you're not logged in
+			url::redirect(url::site().'main');
 		}
 		
-		//get the message in question
-		$message_id = intval($_POST['id']);
-		$message = ORM::factory('usermsg', $message_id);
-		if(!$message->loaded)
+		$view = new View('usermsg/report_sent');
+		$this->template->content = $view;
+		//make sure all the necessary fields are present
+		if(!( 
+				isset($_POST['msg_id']) AND
+				isset($_POST['subject']) AND
+				isset($_POST['message'])
+			))
 		{
-			echo '{"status":"error"}';
-			return;
+			print_r($_POST);
+			url::redirect(url::site().'main');
 		}
+		$view->incident_id = -1;
 
-		//make sure the user can reply to this
-		if($user_id != $message->to_user_id)
+		//grab the message we're replying too
+		$reply_to_msg = ORM::factory('usermsg', $_POST['msg_id']);
+		if(!$reply_to_msg->loaded)
 		{
-			echo '{"status":"error"}';
-			return;
+			url::redirect(url::site().'main');
 		}
+		//make sure it was for you to reply too in the first place
+		if($from_user_id != $reply_to_msg->to_user_id)
+		{
+			url::redirect(url::site().'main');
+		}
+		
 		
 		//check the length of the subject
 		if(strlen($_POST['subject']) > 254)
 		{
-			echo '{"status":"error", "message":"'.Kohana::lang('usermsg.subject_too_long').'"}';
+			$view->msg = Kohana::lang('usermsg.subject_too_long');
+			$view->success = false;
 			return;
 		}
-	
-		//create the reply message
-		$reply = ORM::factory('usermsg');
-		$reply->to_user_id = $message->from_user_id;
-		$reply->from_user_id = $user_id;
-		$reply->msg_text = $_POST['message'];
-		$reply->subject = $_POST['subject'];
-		$reply->date = date('Y-m-d G:i:s');
-		$reply->save();
+					
+		//create the message
+		$message = ORM::factory('usermsg');
+		$message->to_user_id = $reply_to_msg->from_user_id;
+		$message->from_user_id = $from_user_id;
+		$message->msg_text = $_POST['message'];
+		$message->email = null;
+		$message->subject = $_POST['subject'];
+		$message->date = date('Y-m-d G:i:s');
+		$message->save();
 		
-		$this->send_email_alert($message->from_user_id);
-	
-		//send an email to the user who this message was sent to.
-	
-		echo '{"status":"success"}';
+		/////////////////////////////////////////////////////////////////
+		///////////// Turn this back on /////////////////////////////
+		//$this->send_email_alert($user_id);
+		
+		$view->msg = 'Message sent successfully';
+		$view->success = true;
+		
+		Event::run('usermsg.process_incoming_msg',$message);
 	}
 	
 	/**
@@ -161,6 +172,7 @@ class Usermsg_Controller extends Main_Controller {
 			if($message_id != 0)
 			{
 				$message = ORM::factory('usermsg',$message_id);
+				Event::run('usermsg.delete', $message);
 				$message->delete();
 			}
 		}

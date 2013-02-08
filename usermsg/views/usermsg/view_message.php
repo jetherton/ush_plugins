@@ -15,7 +15,7 @@
 <p>
 <?php echo nl2br(htmlentities($message->msg_text, ENT_QUOTES)); ?>
 </p>
-
+<?php Event::run('usermsg.display_msg', $message);?>
 
 <div id="usermsgFunctions">
 <?php if (intval($message->from_user_id) != 0){?>
@@ -23,23 +23,28 @@
 <input type="button" value="<?php echo Kohana::lang('usermsg.Reply')?>" onclick="userMsgReply(<?php echo $message->id?>); return false;"/>
 <?php } else {
 	echo Kohana::lang('usermsg.cant_reply'); 
-}?>
+}
+$id = $message->id;
+?>
 <div id="usermsgReplyDiv_<?php echo $message->id;?>" class="replydiv" style="display:none;">
+<form action="<?php echo url::base(); ?>usermsg/send_reply" method="post" id="userMsg_<?php echo $id?>" name="userMsg_<?php echo $id?>" enctype="multipart/form-data">
 	<?php //figure out the RE situation
 		$subject = htmlentities($message->subject, ENT_QUOTES);
 		if(strtolower(substr($subject,0,3)) != "re:")
 		{
 			$subject = "Re:".$subject;
 		}
-		$id = $message->id;
 	?>
-	<?php echo Kohana::lang('usermsg.Subject:'). ' ' . Form::input('subject_'.$id, $subject, 'id="subject_'.$id.'"');?>
+	<?php echo Kohana::lang('usermsg.Subject:'). ' ' . Form::input('subject', $subject, 'id="subject_'.$id.'"');?>
 	<br/><br/>
 	<?php echo Kohana::lang('usermsg.Message:');?> 
 	<br/>
-	<?php echo Form::textarea('message_'.$id, null, 'id="message_'.$id.'"');?>
-	<input type="button" value="<?php echo Kohana::lang('usermsg.Send Reply')?>" onclick="userMsgSendReply(<?php echo $id?>, true); return false;"/>
+	<?php echo Form::textarea('message', null, 'id="message_'.$id.'"');?>
+	<?php Event::run('usermsg.display_message_submit');?>
+	<input type="hidden" name="msg_id" value="<?php echo $id;?>"/>
+	<input type="submit" value="<?php echo Kohana::lang('usermsg.Send Reply')?>" />
 	<input type="button" value="<?php echo Kohana::lang('usermsg.Cancel')?>" onclick="userMsgSendReply(<?php echo $id?>, false); return false;"/>
 	<span id="sendMessageWaitHolder"></span>
+	</form>
 </div>
 </div>

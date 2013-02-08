@@ -71,6 +71,10 @@ table#userMsgInbox tr td.odd{
 .contentWrap input{
 	padding:4px;
 }
+.contentWrap a{
+	color:white;
+	text-decoration:underline;
+}
 
 #usermsgFunctions, .replydiv{
 	border-top: 2px grey solid;

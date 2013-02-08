@@ -11,8 +11,9 @@
 <div class="comment-block" id="userMsg">
 
 
-<h5><?php echo Kohana::lang('usermsg.send_author')?></h5>
-	<?php print form::open(NULL, array('id' => 'userMsg', 'name' => 'userMsg')); ?>
+<h5><?php echo Kohana::lang('usermsg.send_author')?></h5>	
+	<form action="<?php echo url::base(); ?>usermsg/send_msg_report" method="post" id="userMsg" name="userMsg" enctype="multipart/form-data">
+	
 	
 		<input type="hidden" name="msg_incident_id"  id="msg_incident_id" value="<?php echo $incident_id;?>">
 
@@ -37,58 +38,11 @@
 			<strong><?php echo Kohana::lang('usermsg.Message:')?></strong><br>
 			<?php print form::textarea('msg_content', null, ' rows="4" cols="40" class="textarea long" id="msg_content" ') ?>			
 		</div>
+		<?php Event::run('usermsg.display_message_submit');?>
 		<div class="report_row">
-			<input name="msg_submit" id="msg_submit" type="button" value="<?php echo Kohana::lang('usermsg.send_message'); ?> <?php echo Kohana::lang('ui_main.comment'); ?>" class="btn_blue" />
+			<input name="msg_submit" id="msg_submit" type="submit" value="<?php echo Kohana::lang('usermsg.send_message'); ?> <?php echo Kohana::lang('ui_main.comment'); ?>" class="btn_blue" />
 		</div>
 	<?php echo form::close();?>
 
 </div>
 <br/><br/>
-<script type="text/javascript">
-	$("#msg_submit").click(function(){
-		var incident_id = $("#msg_incident_id").val();
-		var name = $("#msg_name").val();
-		var email = $("#msg_email").val();
-		var subject = $("#msg_subject").val();
-		var content = $("#msg_content").val();
-
-		if(subject == null || typeof subject == "undifined" || subject == "")
-		{
-				alert("Please specify a subject");
-				return;
-		}
-		
-		//turn on the waiter
-		$("#sendMessageWaitHolder").html('<img src="<?php echo url::base();?>media/img/loading_g2.gif" />');
-		
-		//send the data to the server
-		$.post("<?php echo url::base()?>usermsg/send_msg_report", { "incident_id":incident_id,
-				"name":name,
-				"email":email,
-				"subject":subject,
-				"content":content },
-				  function(data){
-					$("#sendMessageWaitHolder").html(''); //turn off waiter
-				    if(data.status == "success")
-				    {
-					    alert("Message sent successfully");
-					    //clear out the fields
-					    $("#msg_name").val('');
-						$("#msg_email").val('');
-						$("#msg_subject").val('');
-						$("#msg_content").val('');
-				    }
-				    else
-				    {
-					    if(typeof data.message == 'undefined')
-					    {
-					    	alert("Error sending. Please try again.");
-					    }
-					    else
-					    {
-						    alert(data.message);
-					    }
-				    }
-				  }, "json");	
-	});
-</script>
