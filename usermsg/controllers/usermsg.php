@@ -64,9 +64,7 @@ class Usermsg_Controller extends Main_Controller {
 		$message->date = date('Y-m-d G:i:s');
 		$message->save();
 		
-		/////////////////////////////////////////////////////////////////
-		///////////// Turn this back on /////////////////////////////
-		//$this->send_email_alert($user_id);
+		$this->send_email_alert($user_id);
 		
 		$view->msg = 'Message sent successfully';
 		$view->success = true;
@@ -139,9 +137,7 @@ class Usermsg_Controller extends Main_Controller {
 		$message->date = date('Y-m-d G:i:s');
 		$message->save();
 		
-		/////////////////////////////////////////////////////////////////
-		///////////// Turn this back on /////////////////////////////
-		//$this->send_email_alert($user_id);
+		$this->send_email_alert($user_id);
 		
 		$view->msg = 'Message sent successfully';
 		$view->success = true;
